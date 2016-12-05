@@ -1,0 +1,23 @@
+## Compilation
+- Steps
+    $ premake4 gmake
+    $ make
+    $ ./A3
+
+- There is no modification to the default premake4/make.
+- No additional assumptions. (Presumbly cs488 directory should be downloaded and installed as instructed on the course website)
+- The computer I used to run in lab is GL15
+
+## Manual
+- No extra commands, features, files has been added
+- All required features are implemented
+- The ball rotation model I used is ArcBall model. The sphere is located in the middle of the screen with central at z = 0 (so it virtually pops out).
+- puppet.lua locates under A3/, it has 15 degrees of freedom, 3 on each limb, 1 hip, 1 shoulder, and neck. Angles are adjusted to be similiar to human body.
+- Root node translation is applied after local rotation
+- Undo and Redo is implemented with an vector of snapshots (array of joint node angles), and there is a line of text under the menu that indicates the current position, and maximum position for undo and redo.
+- snap shots for undo is recorded after dragging is done.
+- After selecting a joint node, the immediate geometry node under it will have its colour set to black.
+- Reset does not reset node selection.
+- The middle mouse button rotates all joints at the axis of rotation which can be x axis or y axis (if they only have 1 axis of rotation then it can be x or y, if they have 2 axis of rotation it rotates the x axis). The rotation angle is controlled by the mouse's y-axis movement.
+- The right mouse button does the y-axis rotation for joints that can rotate on 2 axis, it is controlled by mouse's x-axis movement.
+
