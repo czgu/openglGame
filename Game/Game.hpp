@@ -15,8 +15,6 @@
 #include <memory>
 #include <vector>
 
-#include <SDL2/SDL_mixer.h>
-
 
 #define NUM_JOINT 32
 
