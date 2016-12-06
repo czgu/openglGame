@@ -1,23 +1,55 @@
 ## Compilation
-- Steps
-    $ premake4 gmake
-    $ make
-    $ ./A3
+- Steps (for linux only, no sound) // See for linux & mac part for how to compile on mac
+    - In the main directory, issue "premake4 gmake", and "make"
+    - "cd Game", issue "premake4 gmake", followed by "make"
+    - Start the game with "./Game"
 
-- There is no modification to the default premake4/make.
-- No additional assumptions. (Presumbly cs488 directory should be downloaded and installed as instructed on the course website)
-- The computer I used to run in lab is GL15
+    The steps above is only for linux and will have no sound effect.
+    Here is how to get sound working.
+
+    For linux & mac:
+        - install SDL2 and SDL2_mixer. Here are the urls (download source code):
+            - https://www.libsdl.org/download-2.0.php       // Download version 2.05
+            - https://www.libsdl.org/projects/SDL_mixer/    // Download version 2.01
+            - for each source dir, run "./configure && make && make install"
+        - for MAC, you are done, see above on how to make the game.
+        - for Linux user, go to (Game dir)/Game/premake4.lua
+            - remove "-DNOSOUND" from linux buildOptions
+            - add "SDL2", "SDL2_mixer" to linkedLibs
+            - now go through the steps above to make the game.
+
+- The computer I used to run in lab is GL07
 
 ## Manual
-- No extra commands, features, files has been added
-- All required features are implemented
-- The ball rotation model I used is ArcBall model. The sphere is located in the middle of the screen with central at z = 0 (so it virtually pops out).
-- puppet.lua locates under A3/, it has 15 degrees of freedom, 3 on each limb, 1 hip, 1 shoulder, and neck. Angles are adjusted to be similiar to human body.
-- Root node translation is applied after local rotation
-- Undo and Redo is implemented with an vector of snapshots (array of joint node angles), and there is a line of text under the menu that indicates the current position, and maximum position for undo and redo.
-- snap shots for undo is recorded after dragging is done.
-- After selecting a joint node, the immediate geometry node under it will have its colour set to black.
-- Reset does not reset node selection.
-- The middle mouse button rotates all joints at the axis of rotation which can be x axis or y axis (if they only have 1 axis of rotation then it can be x or y, if they have 2 axis of rotation it rotates the x axis). The rotation angle is controlled by the mouse's y-axis movement.
-- The right mouse button does the y-axis rotation for joints that can rotate on 2 axis, it is controlled by mouse's x-axis movement.
+    - Here are all the controls: W,A,S,D. move forward, left, right, and backward
+    - Left click to destroy a block that is right infront of you
+    - For camera there are two modes, which are togglable at the menu on top left:
+        - third person (default):
+            - the camera point towards the player
+            - the horizontal movement of left mouse drag changes yaw
+            - the vertical movement of left mouse drag changes pitch
+            - use mouse scroll to change the distance of the camera to the player
+            - the player's facing changes along with camera
+        - first person:
+            - left mouse drag up to look up, left mouse drag down to look down, same for left and right
+            - for left and right, you can drag 360 degrees, but for up and down it is clipped at +- 60 degrees
+    - Here are the usage of controls on the menu
+        - Time slider: change the time of the day which is loops from [0, 1440] indefinitely.
+            - 0 represents 6am in the morning, 375 is noon, 750 is sunset, 1125 is midnight
+        - First person checkbox: toggle camera between first person/third person
+        - Enable particles checkbox: if toggled, will randomly emit particles in all directions from the player
+        - msaa checkbox: turn on multisample anti-aliasing
+
+## Objectives
+- Implement randomized terrain generation using perlin noise.
+- Add water in the game, with graphics effects such as waves and reflection.
+- Implement anti-aliasing using FXAA.
+- Add texture mapping to the environments and characters.
+- Add sound to the game such as sound effects and background music.
+- Add keyframed character animations for attacking and walking.
+- Implement particle effects when the player cast fireballs at the enemy.
+- Simulate day-night cycle with phong shading.
+- Implement shadow using shadow mapping technique and make sure they are affected by the time of day.
+- Simulate tall grass blades through the use of geometry shader. 
+
 
