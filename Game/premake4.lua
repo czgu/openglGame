@@ -43,9 +43,7 @@ if os.get() == "linux" then
         "stdc++",
         "dl",
         "pthread",
-        "lodepng",
-        "SDL2",
-        "SDL2_mixer"
+        "lodepng"
     }
 end
 

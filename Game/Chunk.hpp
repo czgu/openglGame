@@ -20,6 +20,7 @@ enum BlockType {
     ROCK,
     TREE,
     SNOW,
+    LEAF,
     NUM_BLOCKS
 };
 

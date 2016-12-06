@@ -30,9 +30,12 @@ public:
     GLint depthBiasMVP_uni;
     GLint tex_uni;
     GLint texShadow_uni;
+    GLint texWater_uni;
+    GLint texDUDV_uni;
     GLint ambientIntensity_uni;
     GLint light_position_uni;
     GLint light_rgbIntensity_uni;
+    GLint moveFactor_uni;
 
     // Attributes
     GLint positionAttrib;
@@ -79,8 +82,9 @@ public:
     int getWidth();
     int getHeight();
     GLuint getTex();
+
+    std::string type;
 private:
-    std::string textureType;
     GLuint tex;
     unsigned width;
     unsigned height;

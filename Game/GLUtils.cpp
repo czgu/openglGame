@@ -52,7 +52,10 @@ CubeShader::CubeShader() : Shader("VertexShader.vs", "FragmentShader.fs") {
     depthBiasMVP_uni = m_shader.getUniformLocation("depthBiasMVP");
     tex_uni = m_shader.getUniformLocation("tex");
     texShadow_uni = m_shader.getUniformLocation("texShadow");
+    texWater_uni = m_shader.getUniformLocation("texWater");
+    texDUDV_uni = m_shader.getUniformLocation("texDUDV");
     ambientIntensity_uni = m_shader.getUniformLocation("ambientIntensity");
+    moveFactor_uni = m_shader.getUniformLocation("moveFactor");
     light_position_uni = m_shader.getUniformLocation("light.position");
     light_rgbIntensity_uni = m_shader.getUniformLocation("light.rgbIntensity");
 
@@ -106,7 +109,7 @@ Texture::Texture(std::string imageUrl) {
     Texture::textureCounter += 1;
     loaded = true;
 
-    textureType = "color";
+    this->type = "color";
 
 	CHECK_GL_ERRORS;
 }
@@ -120,7 +123,7 @@ Texture::Texture(int width, int height, std::string type) {
     glActiveTexture(GL_TEXTURE0 + textureId);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    textureType = type;
+    this->type = type;
     if (type == "depth") {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     } else { // color
@@ -129,6 +132,7 @@ Texture::Texture(int width, int height, std::string type) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -164,13 +168,16 @@ GLuint Texture::getTex() {
     return tex;
 }
 
-
 FrameBuffer::FrameBuffer(Texture* texture): texture(texture) {
     glGenFramebuffers(1, &frameBufferName);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferName);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getTex(), 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
+    if (texture->type == "depth") {
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture->getTex(), 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    } else {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->getTex(), 0);
+    }
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "FBO creation failed" << std::endl;

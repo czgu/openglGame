@@ -30,6 +30,7 @@ const int button_types[] = {GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_MIDDLE, GL
 // Constructor
 Game::Game() : msaa(false), enablePlayerParticle(false)
 {
+    moveFactor = glm::vec2(0,0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -91,12 +92,17 @@ void Game::initCamera()
 
 void Game::initTexture() {
     shadowTexture = new Texture(1024, 768, "depth");
+    waterTexture = new Texture(1024, 768, "color");
 
     cubeTexture = new Texture(getAssetFilePath("tileSet.png"));
+    dudvTexture = new Texture(getAssetFilePath("dudv.png"));
     shadowFrameBuffer = new FrameBuffer(shadowTexture);
+    waterFrameBuffer = new FrameBuffer(waterTexture);
 
     cube_shader->enable();
     cubeTexture->bind(cube_shader->tex_uni);
+    waterTexture->bind(cube_shader->texWater_uni);
+    dudvTexture->bind(cube_shader->texDUDV_uni);
     shadowTexture->bind(cube_shader->texShadow_uni);
     cube_shader->disable();
 }
@@ -146,6 +152,7 @@ void Game::uploadCommonSceneUniforms() {
         glUniform3fv(cube_shader->light_rgbIntensity_uni, 1, value_ptr(m_light.rgbIntensity));
         //-- Set background light ambient intensity
         glUniform3fv(cube_shader->ambientIntensity_uni, 1, value_ptr(m_light.ambientIntensity));
+        glUniform2fv(cube_shader->moveFactor_uni, 1, value_ptr(moveFactor));
         CHECK_GL_ERRORS;
     }
 
@@ -169,6 +176,11 @@ void Game::appLogic()
             particle_system->addParticle(player.position, vec3(randx, 4, randz), vec4(r,g,b,1), randsize);
         }
     }
+
+    moveFactor += vec2(0.001, 0.001);
+    moveFactor.x = fmod(moveFactor.x, 1.0);
+    moveFactor.y = fmod(moveFactor.y, 1.0);
+
 
     player.updatePosition(worldManager, &audio);
 	// Place per frame, application logic here ...
@@ -257,14 +269,38 @@ void Game::draw() {
     // Render world
     glm::mat4 biasDepthVP = getBiasMatrix(VP);
 
+    Camera waterCamera = camera;
+    float distanceToWater = 2 * (camera.position.y - WATER_LEVEL);
+    waterCamera.position.y -= distanceToWater;
+    waterCamera.facing.y = -waterCamera.facing.y;
+    waterCamera.generateViewMatrix();
+
+    waterFrameBuffer->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     cube_shader->enable();
         glEnable( GL_DEPTH_TEST );
         glEnable( GL_CULL_FACE );
+        glEnable(GL_CLIP_DISTANCE0);
         uploadCommonSceneUniforms();
+        //glCullFace( GL_FRONT );
+        worldManager->render(waterCamera.m_view, biasDepthVP);
+        player.render(waterCamera.m_view);
+    cube_shader->disable();
+    waterFrameBuffer->unbind();
+
+    // Draw the actual
+    cube_shader->enable();
+        glEnable( GL_DEPTH_TEST );
+        glEnable( GL_CULL_FACE );
+        glDisable(GL_CLIP_DISTANCE0);
         //glCullFace( GL_FRONT );
         worldManager->render(camera.m_view, biasDepthVP);
         player.render(camera.m_view);
     cube_shader->disable();
+ 
+
+
+
 
     particle_shader->enable();
         glEnable( GL_DEPTH_TEST );
@@ -370,6 +406,7 @@ bool Game::mouseButtonInputEvent (
                     }
                     audio.playRockBreak();
                 }
+                player.smashTime = 0.01;
             }
         }
     }

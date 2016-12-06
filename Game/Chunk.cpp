@@ -147,7 +147,7 @@ void Chunk::updateBlock() {
         for (int j = 0; j < CHUNK_SIZE; j++) {
             bool visible = false;
             for (int i = 0; i < CHUNK_SIZE; i++) {
-                if (skipCheck[i][j][k]) {
+                if (skipCheck[i][j][k] || blocks[i][j][k] == BlockType::WATER) {
                     visible = false;
                     continue;
                 }
@@ -184,7 +184,7 @@ void Chunk::updateBlock() {
         for (int k = 0; k < CHUNK_SIZE; k++) {
             bool visible = false;
             for (int i = 0; i < CHUNK_SIZE; i++) {
-                if (skipCheck[i][j][k]) {
+                if (skipCheck[i][j][k] || blocks[i][j][k] == BlockType::WATER) {
                     visible = false;
                     continue;
                 }
@@ -219,7 +219,7 @@ void Chunk::updateBlock() {
         for (int j = 0; j < CHUNK_SIZE; j++) {
             bool visible = false;
             for (int k = 0; k < CHUNK_SIZE; k++) {
-                if (skipCheck[i][j][k]) {
+                if (skipCheck[i][j][k] || blocks[i][j][k] == BlockType::WATER) {
                     visible = false;
                     continue;
                 }
@@ -254,7 +254,7 @@ void Chunk::updateBlock() {
         for (int j = 0; j < CHUNK_SIZE; j++) {
             bool visible = false;
             for (int k = 0; k < CHUNK_SIZE; k++) {
-                if (skipCheck[i][j][k]) {
+                if (skipCheck[i][j][k] || blocks[i][j][k] == BlockType::WATER) {
                     visible = false;
                     continue;
                 }
@@ -289,7 +289,7 @@ void Chunk::updateBlock() {
         for (int j = 0; j < CHUNK_SIZE; j++) {
             bool visible = false;
             for (int k = 0; k < CHUNK_SIZE; k++) {
-                if (skipCheck[i][j][k]) {
+                if (skipCheck[i][j][k] || blocks[i][j][k] == BlockType::WATER) {
                     visible = false;
                     continue;
                 }
@@ -327,7 +327,14 @@ void Chunk::updateBlock() {
                 if (skipCheck[i][j][k]) {
                     visible = false;
                     continue;
+                } else if (blocks[i][j][k] == BlockType::WATER &&
+                           j < CHUNK_SIZE - 1 &&
+                           blocks[i][j + 1][k] == BlockType::WATER) {
+
+                    visible = false;
+                    continue;
                 }
+
                 // Top
                 int faceType = -getBlockFace(blocks[i][j][k], face);
                 if (visible && blocks[i][j][k] == blocks[i][j][k - 1]) {
@@ -421,6 +428,8 @@ glm::vec3 Chunk::getPosition() {
 void Chunk::createTerrain(Perlin* perlin) {
     requireUpdate = true;
     if (m_position.y == 0) {
+        bool createdTree = 0;
+
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int k = 0; k <  CHUNK_SIZE; k++) {
                 glm::vec2 pos = glm::vec2(
@@ -446,6 +455,26 @@ void Chunk::createTerrain(Perlin* perlin) {
                         blocks[i][j][k] = ROCK;
                     }
                 }
+                if (!createdTree && maxHeight >= 8 && maxHeight < CHUNK_SIZE - 4) {
+                    if (i > 2 && i < CHUNK_SIZE - 2 && k > 2 && k < CHUNK_SIZE - 2) {
+                        for (int a = maxHeight; a < CHUNK_SIZE - 1; a++) {
+                            blocks[i][a][k] = TREE;
+                        }
+
+                        for (int a = CHUNK_SIZE - 4; a < CHUNK_SIZE; a++) {
+                            for (int b = i - 2; b <= i + 2; b++) {
+                                for (int c = k - 2; c <= k + 2; c++) {
+                                    if (a < CHUNK_SIZE - 1 && b == i && c == k) {
+                                        continue;
+                                    }
+                                    blocks[b][a][c] = LEAF;
+                                }
+                            }
+                        }
+                        createdTree = true;
+                    }
+                }
+
             }
         }
     }
@@ -558,6 +587,9 @@ unsigned int getBlockFace(BlockType type, unsigned face) {
             return 8 * 16 + 14;
             break;
         case WATER:
+            if (face == 5) {
+                return 255;
+            }
             return 12 * 16 + 14;
             break;
         case ROCK:
@@ -579,6 +611,8 @@ unsigned int getBlockFace(BlockType type, unsigned face) {
                 return 4 * 16 + 2;
             }
             break;
+        case LEAF:
+            return 53;
         default:
             break;
     }

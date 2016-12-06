@@ -3,7 +3,10 @@
 // uniform vec3 colour;
 uniform sampler2D tex;
 uniform sampler2D texShadow;
+uniform sampler2D texWater;
+uniform sampler2D texDUDV;
 uniform vec3 ambientIntensity;
+uniform vec2 moveFactor;
 
 struct LightSource {
     vec3 position;
@@ -11,6 +14,7 @@ struct LightSource {
 };
 
 in VsOutFsIn {
+    vec4 clipCoord;
     vec4 texcoord;
 	vec3 position_ES; // Eye-space position
 	vec3 normal_ES;   // Eye-space normal
@@ -54,6 +58,7 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, vec3 textureColor, float vis
 
 void main() {
     vec4 texcoord = fs_in.texcoord;
+    vec4 clipCoord = fs_in.clipCoord;
 
     int texNum = int(texcoord.w);
     bool sides = texNum >= 0;
@@ -63,18 +68,30 @@ void main() {
 
     vec4 color;
 
-    if (texNum == 39) {
-        if (sides) {
-        } else {
-            texcoord.z = 0;
-            sides = true;
-        }
-    }
 
-    if (sides) {
-        color = texture(tex, vec2((fract(texcoord.x + texcoord.z) + texCol) / 16.0, ((1 - fract(texcoord.y)) + texRow) / 16.0)) * vec4(0.85, 0.85, 0.85, 1.0);
+    if (texNum == 255) {
+        vec2 ndc = clipCoord.xy / clipCoord.w;
+        ndc.y = -ndc.y;
+        ndc = ndc / 2 + 0.5;
+        vec2 distortion = (texture(texDUDV, ndc + moveFactor).rg * 2.0 - 1.0) * 0.01;
+        color = texture(texWater, ndc + distortion);
+
     } else {
-        color = texture(tex, vec2((fract(texcoord.y + texcoord.x) + texCol) / 16.0, ((1 - fract(texcoord.z)) + texRow) / 16.0));
+        // Grass Blades
+        if (texNum == 39) {
+            if (sides) {
+            } else {
+                texcoord.z = 0;
+                sides = true;
+            }
+        }
+
+        // Normal
+        if (sides) {
+            color = texture(tex, vec2((fract(texcoord.x + texcoord.z) + texCol) / 16.0, ((1 - fract(texcoord.y)) + texRow) / 16.0)) * vec4(0.85, 0.85, 0.85, 1.0);
+        } else {
+            color = texture(tex, vec2((fract(texcoord.y + texcoord.x) + texCol) / 16.0, ((1 - fract(texcoord.z)) + texRow) / 16.0));
+        }
     }
 
 
@@ -96,16 +113,4 @@ void main() {
 
 
     fragColor = mix(fogcolor, color, fog);
-
-    if (fs_in.shadowCoord.x >= 0 && fs_in.shadowCoord.x <= 1 && fs_in.shadowCoord.y >= 0 && fs_in.shadowCoord.y <= 1) {
-        if (false) {
-            float r = texture(texShadow, fs_in.shadowCoord.xy).r;
-            //r = fs_in.shadowCoord.z;
-            color = vec4(1,1,1,1);
-            if (r < fs_in.shadowCoord.z - bias) {
-                color = vec4(0,0,0,1);
-            }
-            fragColor = color;
-        }
-    }
 }

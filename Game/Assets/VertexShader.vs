@@ -15,7 +15,10 @@ struct LightSource {
 };
 uniform LightSource light;
 
+const vec4 waterPlane = vec4(0, 1, 0, -3);
+
 out VsOutFsIn {
+    vec4 clipCoord;
     vec4 texcoord;
 	vec3 position_ES; // Eye-space position
 	vec3 normal_ES;   // Eye-space normal
@@ -33,5 +36,8 @@ void main() {
 
     vec4 pos4 = VM * vec4(position.xyz, 1.0);
     vs_out.position_ES = pos4.xyz;
-	gl_Position = P * pos4;
+    vs_out.clipCoord = P * pos4;
+	gl_Position = vs_out.clipCoord;
+
+    gl_ClipDistance[0] = dot(waterPlane, vec4(position.xyz, 1));
 }

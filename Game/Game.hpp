@@ -62,6 +62,7 @@ protected:
     ParticleShader* particle_shader;
 
     FrameBuffer* shadowFrameBuffer;
+    FrameBuffer* waterFrameBuffer;
 
     // -- Render variables
     glm::mat4 m_shadow_perspective;
@@ -71,13 +72,17 @@ protected:
     Particles* particle_system;
     bool enablePlayerParticle;
 
+    glm::vec2 moveFactor;
+
     // Control variables
     bool mouse_button_pressed[3];
     glm::vec2 mouse_position;
 
     ChunkManager* worldManager;
     Texture* cubeTexture;
+    Texture* dudvTexture;
     Texture* shadowTexture;
+    Texture* waterTexture;
 
     // Game logic variables
     float timeOfDay;

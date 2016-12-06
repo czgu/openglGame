@@ -28,6 +28,7 @@ struct Player : public SolidObjects {
     glm::vec3 right;
     float fallingTime;
     float walkingTime;
+    float smashTime;
 
     MeshModel* playerModel;
     JointNode* leftThigh, *rightThigh;

@@ -49,6 +49,7 @@ Player::Player() {
     height = 1.8;
 
     fallingTime = 0;
+    smashTime = 0;
 
     playerModel = NULL;
     leftThigh = rightThigh = leftArm = rightArm = NULL;
@@ -63,16 +64,16 @@ void Player::loadModel() {
 
 void Player::loadJoints(SceneNode* node) {
     if (node->m_name == "shoulderJoint") {
-        if (leftArm == NULL) {
-            leftArm = static_cast<JointNode *>(node);
-        } else {
+        if (rightArm == NULL) {
             rightArm = static_cast<JointNode *>(node);
+        } else {
+            leftArm = static_cast<JointNode *>(node);
         }
     } else if (node->m_name == "thighJoint") {
-        if (leftThigh == NULL) {
-            leftThigh = static_cast<JointNode *>(node);
-        } else {
+        if (rightThigh == NULL) {
             rightThigh = static_cast<JointNode *>(node);
+        } else {
+            leftThigh = static_cast<JointNode *>(node);
         }
     }
 
@@ -129,6 +130,13 @@ void Player::updatePosition(ChunkManager* chunkManager, Audio* audio) {
         walkingTime += 1.0/5.0;
     }
 
+    if (smashTime > 0) {
+        smashTime += 1.0/5.0;
+        if (smashTime >= 2) {
+            smashTime = 0;
+        }
+    }
+
     animate();
     delta = glm::vec3(0, delta.y, 0);
 }
@@ -142,6 +150,11 @@ void Player::animate() {
     float rightLegAngle = lerp(-25, 30, 1 - frame);
     float leftArmAngle = lerp(330, 360, 1- frame);
     float rightArmAngle = lerp(330, 360, frame);
+
+    if (smashTime > 0) {
+        frame = smashTime > 1 ? 2 - smashTime : smashTime;
+        rightArmAngle = lerp(360, 300, frame);
+    }
 
     leftArm->set_x_rotate(leftArmAngle);
     rightArm->set_x_rotate(rightArmAngle);
