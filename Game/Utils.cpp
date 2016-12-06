@@ -70,6 +70,8 @@ glm::mat4 getBiasMatrix(glm::mat4& m) {
 }
 
 Audio::Audio() {
+#ifdef NOSOUND
+#else
     static bool initializeMixer = false;
     if (initializeMixer == false) {
         Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_FLAC | MIX_INIT_FLUIDSYNTH | MIX_INIT_MOD | MIX_INIT_MODPLUG);
@@ -115,33 +117,49 @@ Audio::Audio() {
     if (rockSound == NULL) {
         std::cout << "cannot load sound" << std::endl;
     }
+#endif
 }
 
 void Audio::playBackground() {
+#ifdef NOSOUND
+#else
     if (backgroundMusic != NULL) {
         Mix_PlayMusic(backgroundMusic, -1); //loop forever
     }
+#endif
 }
 
 void Audio::playJump() {
+#ifdef NOSOUND
+#else
     if (jumpSound != NULL) {
         Mix_PlayChannel( -1, jumpSound, 0 );
     }
+#endif
 }
 
 void Audio::playWalk() {
+#ifdef NOSOUND
+#else
     if (walkSound != NULL) {
         Mix_PlayChannel( -1, walkSound, 0 );
     }
+
+#endif
 }
 
 void Audio::playRockBreak() {
+#ifdef NOSOUND
+#else
     if (rockSound != NULL) {
         Mix_PlayChannel( -1, rockSound, 0 );
     }
+#endif
 }
 
 Audio::~Audio() {
+#ifdef NOSOUND
+#else
     if (jumpSound != NULL) {
         Mix_FreeChunk( jumpSound );
     }
@@ -151,5 +169,6 @@ Audio::~Audio() {
     if (rockSound != NULL) {
         Mix_FreeChunk( rockSound );
     }
+#endif
 }
 

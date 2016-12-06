@@ -46,7 +46,7 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, vec3 textureColor, float vis
 		vec3 h = normalize(v + l);
         float n_dot_h = max(dot(fragNormal, h), 0.0);
 
-        specular = textureColor * pow(n_dot_h, 20);
+        specular = textureColor * pow(n_dot_h, 10);
     }
 
     return visibility * (ambientIntensity * textureColor + light.rgbIntensity * (diffuse + specular));

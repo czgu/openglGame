@@ -187,7 +187,7 @@ bool ChunkManager::solidBlock(glm::vec3& position) {
     glm::vec3 localCoord = position - toNormalCoord(playerChunkPos);
 
     BlockType type = chunk->getBlock((int)localCoord.x, (int)localCoord.y, (int)localCoord.z);
-    if ( transparentBlock(type) ) {
+    if ( passableBlock(type) ) {
         return false;
     }
 

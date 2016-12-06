@@ -8,6 +8,7 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include <memory>
 
 class Shader {
 public:
@@ -79,6 +80,7 @@ public:
     int getHeight();
     GLuint getTex();
 private:
+    std::string textureType;
     GLuint tex;
     unsigned width;
     unsigned height;

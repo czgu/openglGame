@@ -106,6 +106,8 @@ Texture::Texture(std::string imageUrl) {
     Texture::textureCounter += 1;
     loaded = true;
 
+    textureType = "color";
+
 	CHECK_GL_ERRORS;
 }
 
@@ -117,6 +119,8 @@ Texture::Texture(int width, int height, std::string type) {
 
     glActiveTexture(GL_TEXTURE0 + textureId);
     glBindTexture(GL_TEXTURE_2D, tex);
+
+    textureType = type;
     if (type == "depth") {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     } else { // color

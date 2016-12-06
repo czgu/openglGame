@@ -2,8 +2,12 @@
 
 #include <string>
 #include <glm/glm.hpp>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+
+#ifdef NOSOUND
+#else
+    #include <SDL2/SDL.h>
+    #include <SDL2/SDL_mixer.h>
+#endif
 
 // Math Functions
 glm::vec3 lerp(glm::vec3 a, glm::vec3 b, float t);
@@ -46,8 +50,12 @@ public:
     void playWalk();
     void playRockBreak();
 private:
+
+#ifdef NOSOUND
+#else
     Mix_Music* backgroundMusic;
     Mix_Chunk* jumpSound;
     Mix_Chunk* walkSound;
     Mix_Chunk* rockSound;
+#endif
 };

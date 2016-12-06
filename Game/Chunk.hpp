@@ -24,6 +24,7 @@ enum BlockType {
 };
 
 bool transparentBlock(BlockType block);
+bool passableBlock(BlockType block);
 unsigned int getBlockFace(BlockType type, unsigned face);
 
 class Chunk {

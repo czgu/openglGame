@@ -451,11 +451,24 @@ void Chunk::createTerrain(Perlin* perlin) {
     }
 }
 
-bool transparentBlock(BlockType block) {
+bool passableBlock(BlockType block) {
     switch (block) {
         case EMPTY:
         case GRASS_BLADE:
         case WATER:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+    }
+    return false;
+}
+
+bool transparentBlock(BlockType block) {
+    switch (block) {
+        case EMPTY:
+        case GRASS_BLADE:
             return true;
             break;
         default:
